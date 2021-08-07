@@ -11,10 +11,10 @@
 // Ctrl+f for XXX to see all the modifications.
 
 // XXX: pragma solidity ^0.5.16;
-pragma solidity 0.6.12;
+pragma solidity 0.8.0;
 
 // XXX: import "./SafeMath.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Timelock {
     using SafeMath for uint;
@@ -119,7 +119,7 @@ contract Timelock {
         }
 
         // solium-disable-next-line security/no-call-value
-        (bool success, bytes memory returnData) = target.call.value(value)(callData);
+        (bool success, bytes memory returnData) = target.call{value: value}(callData);
         require(success, "Timelock::executeTransaction: Transaction execution reverted.");
 
         emit ExecuteTransaction(txHash, target, value, signature, data, eta);

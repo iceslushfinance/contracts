@@ -1,9 +1,12 @@
-pragma solidity 0.6.12;
+pragma solidity 0.8.0;
 
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./libs/BEP20.sol";
 
-// EggToken with Governance.
-contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
+// GoToken with Governance.
+contract GoToken is BEP20('Go Token', 'GOO') {
+    using SafeMath for uint256;
+
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
     function mint(address _to, uint256 _amount) public onlyOwner {
         _mint(_to, _amount);
@@ -16,7 +19,7 @@ contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
     // Which is copied and modified from COMPOUND:
     // https://github.com/compound-finance/compound-protocol/blob/master/contracts/Governance/Comp.sol
 
-    /// @notice A record of each accounts delegate
+    // A record of each accounts delegate
     mapping (address => address) internal _delegates;
 
     /// @notice A checkpoint for marking number of votes from a given block
@@ -112,9 +115,9 @@ contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
         );
 
         address signatory = ecrecover(digest, v, r, s);
-        require(signatory != address(0), "EGG::delegateBySig: invalid signature");
-        require(nonce == nonces[signatory]++, "EGG::delegateBySig: invalid nonce");
-        require(now <= expiry, "EGG::delegateBySig: signature expired");
+        require(signatory != address(0), "Token::delegateBySig: invalid signature");
+        require(nonce == nonces[signatory]++, "Token::delegateBySig: invalid nonce");
+        require(block.timestamp <= expiry, "Token::delegateBySig: signature expired");
         return _delegate(signatory, delegatee);
     }
 
@@ -144,7 +147,7 @@ contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
         view
         returns (uint256)
     {
-        require(blockNumber < block.number, "EGG::getPriorVotes: not yet determined");
+        require(blockNumber < block.number, "Token::getPriorVotes: not yet determined");
 
         uint32 nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -217,7 +220,7 @@ contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
     )
         internal
     {
-        uint32 blockNumber = safe32(block.number, "EGG::_writeCheckpoint: block number exceeds 32 bits");
+        uint32 blockNumber = safe32(block.number, "Token::_writeCheckpoint: block number exceeds 32 bits");
 
         if (nCheckpoints > 0 && checkpoints[delegatee][nCheckpoints - 1].fromBlock == blockNumber) {
             checkpoints[delegatee][nCheckpoints - 1].votes = newVotes;
@@ -234,7 +237,7 @@ contract EggToken is BEP20('Goose Golden Egg', 'EGG') {
         return uint32(n);
     }
 
-    function getChainId() internal pure returns (uint) {
+    function getChainId() internal view returns (uint) {
         uint256 chainId;
         assembly { chainId := chainid() }
         return chainId;

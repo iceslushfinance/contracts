@@ -3,9 +3,9 @@
 pragma solidity >=0.4.0;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
-import '@openzeppelin/contracts/GSN/Context.sol';
+import '@openzeppelin/contracts/utils/Context.sol';
 import './IBEP20.sol';
-import '@openzeppelin/contracts/math/SafeMath.sol';
+import '@openzeppelin/contracts/utils/math/SafeMath.sol';
 
 /**
  * @dev Implementation of the {IBEP20} interface.
