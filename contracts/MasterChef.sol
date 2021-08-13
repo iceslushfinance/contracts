@@ -7,7 +7,7 @@ import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./GoToken.sol";
+import "./EBIToken.sol";
 
 // MasterChef is the master of Goo. He can make Goo and he is a fair guy.
 //
@@ -47,7 +47,7 @@ contract MasterChef is Ownable {
     }
 
     // The EGG TOKEN!
-    GoToken public goo;
+    EBIToken public goo;
     // Dev address.
     address public devaddr;
     // EGG tokens created per block.
@@ -71,7 +71,7 @@ contract MasterChef is Ownable {
     event EmergencyWithdraw(address indexed user, uint256 indexed pid, uint256 amount);
 
     constructor(
-        GoToken _goo,
+        EBIToken _goo,
         address _devaddr,
         address _feeAddress,
         uint256 _gooPerBlock,

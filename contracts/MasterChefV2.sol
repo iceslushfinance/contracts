@@ -8,7 +8,7 @@ import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./GoToken.sol";
+import "./EBIToken.sol";
 
 // MasterChef is the master of Egg. He can make Egg and he is a fair guy.
 //
@@ -48,12 +48,12 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     }
 
     // The EGG TOKEN!
-    GoToken public egg;
+    EBIToken public ebi;
     // Dev address.
     address public devaddr;
     // EGG tokens created per block.
-    uint256 public eggPerBlock;
-    // Bonus muliplier for early egg makers.
+    uint256 public ebiPerBlock;
+    // Bonus muliplier for early ebi makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
     // Deposit Fee address
     address public feeAddress;
@@ -75,16 +75,16 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     event UpdateEmissionRate(address indexed user, uint256 goosePerBlock);
 
     constructor(
-        GoToken _egg,
+        EBIToken _ebi,
         address _devaddr,
         address _feeAddress,
-        uint256 _eggPerBlock,
+        uint256 _ebiPerBlock,
         uint256 _startBlock
     ) public {
-        egg = _egg;
+        ebi = _ebi;
         devaddr = _devaddr;
         feeAddress = _feeAddress;
-        eggPerBlock = _eggPerBlock;
+        ebiPerBlock = _ebiPerBlock;
         startBlock = _startBlock;
     }
 
@@ -140,8 +140,8 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-            uint256 eggReward = multiplier.mul(eggPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accEggPerShare = accEggPerShare.add(eggReward.mul(1e12).div(lpSupply));
+            uint256 ebiReward = multiplier.mul(ebiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+            accEggPerShare = accEggPerShare.add(ebiReward.mul(1e12).div(lpSupply));
         }
         return user.amount.mul(accEggPerShare).div(1e12).sub(user.rewardDebt);
     }
@@ -166,10 +166,10 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
             return;
         }
         uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
-        uint256 eggReward = multiplier.mul(eggPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-        egg.mint(devaddr, eggReward.div(10));
-        egg.mint(address(this), eggReward);
-        pool.accEggPerShare = pool.accEggPerShare.add(eggReward.mul(1e12).div(lpSupply));
+        uint256 ebiReward = multiplier.mul(ebiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
+        ebi.mint(devaddr, ebiReward.div(10));
+        ebi.mint(address(this), ebiReward);
+        pool.accEggPerShare = pool.accEggPerShare.add(ebiReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
@@ -227,14 +227,14 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe egg transfer function, just in case if rounding error causes pool to not have enough EGGs.
+    // Safe ebi transfer function, just in case if rounding error causes pool to not have enough EGGs.
     function safeEggTransfer(address _to, uint256 _amount) internal {
-        uint256 eggBal = egg.balanceOf(address(this));
+        uint256 ebiBal = ebi.balanceOf(address(this));
         bool transferSuccess = false;
-        if (_amount > eggBal) {
-            transferSuccess = egg.transfer(_to, eggBal);
+        if (_amount > ebiBal) {
+            transferSuccess = ebi.transfer(_to, ebiBal);
         } else {
-            transferSuccess = egg.transfer(_to, _amount);
+            transferSuccess = ebi.transfer(_to, _amount);
         }
         require(transferSuccess, "safeEggTransfer: transfer failed");
     }
@@ -253,9 +253,9 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     }
 
     //Pancake has to add hidden dummy pools inorder to alter the emission, here we make it simple and transparent to all.
-    function updateEmissionRate(uint256 _eggPerBlock) public onlyOwner {
+    function updateEmissionRate(uint256 _ebiPerBlock) public onlyOwner {
         massUpdatePools();
-        eggPerBlock = _eggPerBlock;
-        emit UpdateEmissionRate(msg.sender, _eggPerBlock);
+        ebiPerBlock = _ebiPerBlock;
+        emit UpdateEmissionRate(msg.sender, _ebiPerBlock);
     }
 }

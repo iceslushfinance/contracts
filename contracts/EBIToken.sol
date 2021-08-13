@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./libs/BEP20.sol";
 
 // GoToken with Governance.
-contract EBIToken is BEP20('EBI Swap', 'EBI') {
+contract EBIToken is BEP20('Test 1', 'TST') {
     using SafeMath for uint256;
 
     /// @notice Creates `_amount` token to `_to`. Must only be called by the owner (MasterChef).
