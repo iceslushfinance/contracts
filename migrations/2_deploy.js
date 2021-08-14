@@ -1,0 +1,43 @@
+const MasterChefV2 = artifacts.require("MasterChefV2");
+const Token = artifacts.require("EBIToken");
+
+module.exports = async function (deployer) {
+  await deployer.deploy(Token)
+  const token = await Token.deployed()
+
+  const devAddr = "0x7447Ca1C2d07Aa67BfE4C46Cc3dD0450C2Cef013"
+
+  const startBlock = 17969418;
+
+  await deployer.deploy(
+    MasterChefV2,
+    token.address,
+    devAddr,
+    devAddr,
+    "70000000000000000", // TODO: 0.07
+    startBlock
+  );
+  const masterChef = await MasterChefV2.deployed();
+  // mint for developer
+  await token.mint(devAddr, "200000000000000000000")
+  // transfer ownership to masterchef
+  await token.transferOwnership(masterChef.address)
+
+  // // Farms
+  // await masterChef.add(300, "0x87314ac80724085797b66afc3402a734f0ae8c5b", 0, 1) // EBI - USDC LP (0% fee) (300x) (Quickswap)
+  // await masterChef.add(300, "0x6e7a5fafcec6bb1e78bae2a1f0b612012bf14827", 0, 1) // USDC - MATIC LP (0% fee) (300x) (Quickswap)
+  // // USDC - MATIC LP (4% fee) (35x)
+  // // USDC - WETH LP (4% fee) (35x)
+  // //
+  // // Pools
+  // await masterChef.add(80, "0x17b02ca924f90261c920e59fef812387e5619e9e", 0, 1) // EBI (0% fee) (80x)
+  // await masterChef.add(32, "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", 400, 1) // WMATIC (4% fee) (32x)
+  // WETH (4% fee) (35x)
+  // WBTC (4% fee) (30x)
+  // USDC (4% fee) (35x)
+  // USDT (4% fee) (35x)
+  // DAI (4% fee) (35x)
+  // LINK (4% fee) (16x)
+  // SUSHI (4% fee) (16x)
+  // AAVE (4% fee) (16x)
+};
