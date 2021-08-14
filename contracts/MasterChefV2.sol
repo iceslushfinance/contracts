@@ -10,10 +10,10 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./EBIToken.sol";
 
-// MasterChef is the master of Egg. He can make Egg and he is a fair guy.
+// MasterChef is the master of Ebi. He can make Ebi and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once EGG is sufficiently
+// will be transferred to a governance smart contract once EBI is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -26,13 +26,13 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 amount;         // How many LP tokens the user has provided.
         uint256 rewardDebt;     // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of EGGs
+        // We do some fancy math here. Basically, any point in time, the amount of EBIs
         // entitled to a user but is pending to be distributed is:
         //
-        //   pending reward = (user.amount * pool.accEggPerShare) - user.rewardDebt
+        //   pending reward = (user.amount * pool.accEbiPerShare) - user.rewardDebt
         //
         // Whenever a user deposits or withdraws LP tokens to a pool. Here's what happens:
-        //   1. The pool's `accEggPerShare` (and `lastRewardBlock`) gets updated.
+        //   1. The pool's `accEbiPerShare` (and `lastRewardBlock`) gets updated.
         //   2. User receives the pending reward sent to his/her address.
         //   3. User's `amount` gets updated.
         //   4. User's `rewardDebt` gets updated.
@@ -41,17 +41,17 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. EGGs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that EGGs distribution occurs.
-        uint256 accEggPerShare;   // Accumulated EGGs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. EBIs to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that EBIs distribution occurs.
+        uint256 accEbiPerShare;   // Accumulated EBIs per share, times 1e12. See below.
         uint16 depositFeeBP;      // Deposit fee in basis points
     }
 
-    // The EGG TOKEN!
+    // The EBI TOKEN!
     EBIToken public ebi;
     // Dev address.
     address public devaddr;
-    // EGG tokens created per block.
+    // EBI tokens created per block.
     uint256 public ebiPerBlock;
     // Bonus muliplier for early ebi makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
@@ -64,7 +64,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when EGG mining starts.
+    // The block number when EBI mining starts.
     uint256 public startBlock;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -111,12 +111,12 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         lpToken : _lpToken,
         allocPoint : _allocPoint,
         lastRewardBlock : lastRewardBlock,
-        accEggPerShare : 0,
+        accEbiPerShare : 0,
         depositFeeBP : _depositFeeBP
         }));
     }
 
-    // Update the given pool's EGG allocation point and deposit fee. Can only be called by the owner.
+    // Update the given pool's EBI allocation point and deposit fee. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _depositFeeBP, bool _withUpdate) public onlyOwner {
         require(_depositFeeBP <= 400, "set: invalid deposit fee basis points");
         if (_withUpdate) {
@@ -132,18 +132,18 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending EGGs on frontend.
-    function pendingEgg(uint256 _pid, address _user) external view returns (uint256) {
+    // View function to see pending EBIs on frontend.
+    function pendingEbi(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
-        uint256 accEggPerShare = pool.accEggPerShare;
+        uint256 accEbiPerShare = pool.accEbiPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(pool.lastRewardBlock, block.number);
             uint256 ebiReward = multiplier.mul(ebiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
-            accEggPerShare = accEggPerShare.add(ebiReward.mul(1e12).div(lpSupply));
+            accEbiPerShare = accEbiPerShare.add(ebiReward.mul(1e12).div(lpSupply));
         }
-        return user.amount.mul(accEggPerShare).div(1e12).sub(user.rewardDebt);
+        return user.amount.mul(accEbiPerShare).div(1e12).sub(user.rewardDebt);
     }
 
     // Update reward variables for all pools. Be careful of gas spending!
@@ -169,19 +169,19 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 ebiReward = multiplier.mul(ebiPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
         ebi.mint(devaddr, ebiReward.div(10));
         ebi.mint(address(this), ebiReward);
-        pool.accEggPerShare = pool.accEggPerShare.add(ebiReward.mul(1e12).div(lpSupply));
+        pool.accEbiPerShare = pool.accEbiPerShare.add(ebiReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for EGG allocation.
+    // Deposit LP tokens to MasterChef for EBI allocation.
     function deposit(uint256 _pid, uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accEggPerShare).div(1e12).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accEbiPerShare).div(1e12).sub(user.rewardDebt);
             if (pending > 0) {
-                safeEggTransfer(msg.sender, pending);
+                safeEbiTransfer(msg.sender, pending);
             }
         }
         if (_amount > 0) {
@@ -194,7 +194,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
                 user.amount = user.amount.add(_amount);
             }
         }
-        user.rewardDebt = user.amount.mul(pool.accEggPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accEbiPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -204,15 +204,15 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         UserInfo storage user = userInfo[_pid][msg.sender];
         require(user.amount >= _amount, "withdraw: not good");
         updatePool(_pid);
-        uint256 pending = user.amount.mul(pool.accEggPerShare).div(1e12).sub(user.rewardDebt);
+        uint256 pending = user.amount.mul(pool.accEbiPerShare).div(1e12).sub(user.rewardDebt);
         if (pending > 0) {
-            safeEggTransfer(msg.sender, pending);
+            safeEbiTransfer(msg.sender, pending);
         }
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
         }
-        user.rewardDebt = user.amount.mul(pool.accEggPerShare).div(1e12);
+        user.rewardDebt = user.amount.mul(pool.accEbiPerShare).div(1e12);
         emit Withdraw(msg.sender, _pid, _amount);
     }
 
@@ -227,8 +227,8 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe ebi transfer function, just in case if rounding error causes pool to not have enough EGGs.
-    function safeEggTransfer(address _to, uint256 _amount) internal {
+    // Safe ebi transfer function, just in case if rounding error causes pool to not have enough EBIs.
+    function safeEbiTransfer(address _to, uint256 _amount) internal {
         uint256 ebiBal = ebi.balanceOf(address(this));
         bool transferSuccess = false;
         if (_amount > ebiBal) {
@@ -236,7 +236,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         } else {
             transferSuccess = ebi.transfer(_to, _amount);
         }
-        require(transferSuccess, "safeEggTransfer: transfer failed");
+        require(transferSuccess, "safeEbiTransfer: transfer failed");
     }
 
     // Update dev address by the previous dev.
