@@ -2,7 +2,8 @@
 
 pragma solidity 0.8.0;
 
-import "./libs/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import "./libs/FixidityLib.sol";
 import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";

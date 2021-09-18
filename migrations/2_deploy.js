@@ -1,13 +1,13 @@
 const MasterChefV2 = artifacts.require("MasterChefV2");
-const Token = artifacts.require("EBIToken");
+const Token = artifacts.require("Token");
 
 module.exports = async function (deployer) {
   await deployer.deploy(Token)
   const token = await Token.deployed()
 
-  const devAddr = "0x7447Ca1C2d07Aa67BfE4C46Cc3dD0450C2Cef013"
+  const devAddr = "0xC8ad39418043AB46737eD0055E0a9c7E85cf6238"
 
-  const startBlock = 19249416;
+  const startBlock = 19250416;
 
   await deployer.deploy(
     MasterChefV2,

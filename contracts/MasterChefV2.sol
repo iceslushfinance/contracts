@@ -2,8 +2,7 @@
 
 pragma solidity 0.8.0;
 
-import "./libs/SafeMath.sol";
-import "./libs/FixidityLib.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./libs/IBEP20.sol";
 import "./libs/SafeBEP20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -50,9 +49,6 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
 
     // The TOKEN!
     Token public token;
-    // Addresses to link to price.
-    IBEP20 public usdc;
-    address public usdcTokenLP = address(0x0); // set after listing.
     // Maximum emission rate
     uint256 public maxEmissionRate = 1 ether;
     // Dev address.
@@ -72,15 +68,6 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     uint256 public totalAllocPoint = 0;
     // The block number when EBI mining starts.
     uint256 public startBlock;
-
-    uint public topPrice = 100; // 10$
-    uint public bottomPrice = 1; //1$
-    uint public curveRate = 5;
-    uint public lastBlockUpdate = 0;
-    uint public emissionUpdateInterval = 1800; // approx 3hrs at 2 blocks/seconds
-
-    bool depositFeeAllowed = false;
-    bool withdrawFeeAllowed = false;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);

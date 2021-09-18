@@ -1,12 +1,13 @@
 pragma solidity 0.8.0;
 
-import "./libs/SafeMath.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
 import "./libs/BEP20.sol";
 
-contract Token is BEP20('Tamago Swap', 'TMG') {
+contract Token is BEP20('Test', 'tst1') {
     using SafeMath for uint256;
 
     // Transfer tax rate in basis points. (default 3%)
@@ -20,7 +21,7 @@ contract Token is BEP20('Tamago Swap', 'TMG') {
 
     // Automatic swap and liquify enabled
     bool public swapAndLiquifyEnabled = false;
-    // Min amount to liquify. (default 25 Tamago)
+    // Min amount to liquify. (default 25 Token)
     uint256 public minAmountToLiquify = 25 ether;
     // The swap router.
     IUniswapV2Router02 public constant swapRouter = IUniswapV2Router02(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff);
@@ -63,7 +64,7 @@ contract Token is BEP20('Tamago Swap', 'TMG') {
     }
 
     /**
-     * @notice Constructs the Tamago Token contract.
+     * @notice Constructs the Token contract.
      */
     constructor() {
         _operator = _msgSender();

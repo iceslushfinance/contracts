@@ -1,5 +1,5 @@
 const MasterChefV2 = artifacts.require("MasterChefV2");
-const Token = artifacts.require("EBIToken");
+const Token = artifacts.require("Token");
 
 module.exports = async function (deployer) {
   const token = await Token.deployed()

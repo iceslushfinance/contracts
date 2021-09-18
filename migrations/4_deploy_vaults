@@ -1,5 +1,5 @@
 const TokenStaking = artifacts.require("TokenStaking");
-const Token = artifacts.require("EBIToken");
+const Token = artifacts.require("Token");
 
 module.exports = async function (deployer) {
   const stakingToken = '0x034D706c3AF9D11F0Ba90d9967947ABEdA7a5758';
