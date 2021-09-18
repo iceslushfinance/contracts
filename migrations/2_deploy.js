@@ -7,7 +7,7 @@ module.exports = async function (deployer) {
 
   const devAddr = "0x7447Ca1C2d07Aa67BfE4C46Cc3dD0450C2Cef013"
 
-  const startBlock = 17969418;
+  const startBlock = 19249416;
 
   await deployer.deploy(
     MasterChefV2,
