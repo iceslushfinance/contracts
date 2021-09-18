@@ -60,19 +60,19 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     mumbai: {
-    network_id: 3,       // Ropsten's id
-      provider: () => new HDWalletProvider("33c77bca83fc629dc54f02fca02e0e93f40645476e7a7a3960d44dba2d279394", `https://rpc-mumbai.maticvigil.com/`),
-      gas: 5500000,        // Ropsten has a lower block limit than mainnetz
-    confirmations: 0,    // # of confs to wait between deployments. (default: 0)
-    timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
-    skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
+      network_id: 3,       // Ropsten's id
+      provider: () => new HDWalletProvider("af1e9cc5d51403fd4a04cce872923a547a9b3a2d950b21679e8e9c695666290d", `https://rpc-mumbai.maticvigil.com/`),
+      gas: 500000,        // Ropsten has a lower block limit than mainnetz
+      confirmations: 0,    // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
     mainnet: {
-      provider: () => new HDWalletProvider("33c77bca83fc629dc54f02fca02e0e93f40645476e7a7a3960d44dba2d279394", `https://polygon-mainnet.g.alchemy.com/v2/iK4L4-ihWCw92UigTI4-PzKgjMuRy6XQ`),
+      provider: () => new HDWalletProvider("af1e9cc5d51403fd4a04cce872923a547a9b3a2d950b21679e8e9c695666290d", `https://polygon-mainnet.g.alchemy.com/v2/iK4L4-ihWCw92UigTI4-PzKgjMuRy6XQ`),
       network_id: 137,       // Ropsten's id
       networkId: 137,
-      gasLimit: 8000000,
-      gasPrice: 80000000000,
+      gasLimit: 2000000,
+      gasPrice: 22000000000,
       chain_id: 137,
       chainId: 137,
       // confirmations: 0,    // # of confs to wait between deployments. (default: 0)
@@ -98,11 +98,11 @@ module.exports = {
       version: "0.8.0",    // Fetch exact version from solc-bin (default: truffle's version)
       docker: false,        // Use "0.5.1" you've installed locally with docker (default: false)
       settings: {          // See the solidity docs for advice about optimization and evmVersion
-       optimizer: {
-         enabled: false,
-         runs: 200
-       },
-       evmVersion: "istanbul"
+        optimizer: {
+          enabled: false,
+          runs: 200
+        },
+        evmVersion: "istanbul"
       }
     }
   },
@@ -127,13 +127,13 @@ module.exports = {
   // $ truffle migrate --reset --compile-all
   //
   // db: {
-    // enabled: false,
-    // host: "127.0.0.1",
-    // adapter: {
-    //   name: "sqlite",
-    //   settings: {
-    //     directory: ".db"
-    //   }
-    // }
+  // enabled: false,
+  // host: "127.0.0.1",
+  // adapter: {
+  //   name: "sqlite",
+  //   settings: {
+  //     directory: ".db"
+  //   }
+  // }
   // }
 };
