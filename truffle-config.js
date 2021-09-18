@@ -68,13 +68,12 @@ module.exports = {
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
     mainnet: {
-      provider: () => new HDWalletProvider("af1e9cc5d51403fd4a04cce872923a547a9b3a2d950b21679e8e9c695666290d", `https://polygon-mainnet.g.alchemy.com/v2/iK4L4-ihWCw92UigTI4-PzKgjMuRy6XQ`),
-      network_id: 137,       // Ropsten's id
-      networkId: 137,
+      provider: () => new HDWalletProvider("af1e9cc5d51403fd4a04cce872923a547a9b3a2d950b21679e8e9c695666290d", `https://api.avax.network/ext/bc/C/rpc`),
+      network_id: 43114,       // Ropsten's id
+      networkId: 43114,
       gasLimit: 2000000,
-      gasPrice: 22000000000,
-      chain_id: 137,
-      chainId: 137,
+      chain_id: 43114,
+      chainId: 43114,
       // confirmations: 0,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
