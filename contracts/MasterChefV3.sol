@@ -17,7 +17,7 @@ import "./Token.sol";
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
-contract MasterChefV2 is Ownable, ReentrancyGuard {
+contract MasterChefV3 is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
@@ -25,6 +25,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     struct UserInfo {
         uint256 amount;         // How many LP tokens the user has provided.
         uint256 rewardDebt;     // Reward debt. See explanation below.
+        bool compounding;
         //
         // We do some fancy math here. Basically, any point in time, the amount of EBIs
         // entitled to a user but is pending to be distributed is:
@@ -68,6 +69,9 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     uint256 public totalAllocPoint = 0;
     // The block number when EBI mining starts.
     uint256 public startBlock;
+
+    // pid of autoStake pool
+    uint256 public autoStakePID;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -116,6 +120,10 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         accTokenPerShare : 0,
         withdrawFeeBP : _withdrawFeeBP
         }));
+
+        if (address(_lpToken) == address(token)) {
+            autoStakePID = poolLength() - 1;
+        }
     }
 
     // Update the given pool's EBI allocation point and deposit fee. Can only be called by the owner.
@@ -193,6 +201,28 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         }
         user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e18);
         emit Deposit(msg.sender, _pid, _amount);
+    }
+
+    function normalizeCompound(uint256 pid) public nonReentrant {
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
+    }
+
+    function compound(uint256 pid) public nonReentrant {
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
+        user.compounding = true;
+        updatePool(_pid);
+        if (user.amount > 0) {
+            uint256 pending = user.amount.mul(pool.accTokenPerShare).div(1e18).sub(user.rewardDebt);
+            if (pending > 0) {
+                safeTokenTransfer(msg.sender, pending);
+            }
+            uint256 balanceBefore = pool.lpToken.balanceOf(address(this));
+            pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
+            uint256 finalAmount = pool.lpToken.balanceOf(address(this)).sub(balanceBefore);
+            user.amount = user.amount.add(finalAmount);
+        }
     }
 
     // Withdraw LP tokens from MasterChef.

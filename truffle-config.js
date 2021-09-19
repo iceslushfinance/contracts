@@ -59,11 +59,14 @@ module.exports = {
     // c1b26af7c56e466cb808503f352b1c8044789933cdfe2317c8431298646c34e5
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
-    mumbai: {
-      network_id: 3,       // Ropsten's id
-      provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://rpc-mumbai.maticvigil.com/`),
-      gas: 500000,        // Ropsten has a lower block limit than mainnetz
-      confirmations: 0,    // # of confs to wait between deployments. (default: 0)
+    testnet: {
+      provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://api.avax-test.network/ext/bc/C/rpc`),
+      network_id: 1,       // Ropsten's id
+      networkId: 1,
+      gas: 4000000,
+      chain_id: 43113,
+      chainId: 43113,
+      // confirmations: 0,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )
     },
@@ -71,8 +74,8 @@ module.exports = {
       provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://api.avax.network/ext/bc/C/rpc`),
       network_id: 1,       // Ropsten's id
       networkId: 1,
-      gas: 1000000,
-      gasPrice: 100000000000,
+      gas: 4000000,
+      gasPrice: 90000000000,
       chain_id: 43114,
       chainId: 43114,
       // confirmations: 0,    // # of confs to wait between deployments. (default: 0)

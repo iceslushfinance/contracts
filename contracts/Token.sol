@@ -1,7 +1,6 @@
 pragma solidity 0.8.0;
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol";
@@ -24,7 +23,7 @@ contract Token is BEP20('Test', 'tst1') {
     // Min amount to liquify. (default 25 Token)
     uint256 public minAmountToLiquify = 25 ether;
     // The swap router.
-    IUniswapV2Router02 public constant swapRouter = IUniswapV2Router02(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff);
+    IUniswapV2Router02 public constant swapRouter = IUniswapV2Router02(0x60aE616a2155Ee3d9A68541Ba4544862310933d4);
     // The trading pair
     address public swapPair;
     // In swap and liquify

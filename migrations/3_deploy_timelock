@@ -1,4 +1,3 @@
-const multicall = artifacts.require("Multicall");
 const timelock = artifacts.require("Timelock");
 
 module.exports = async function (deployer) {
