@@ -74,8 +74,7 @@ module.exports = {
       provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://api.avax.network/ext/bc/C/rpc`),
       network_id: 1,       // Ropsten's id
       networkId: 1,
-      gas: 4000000,
-      gasPrice: 90000000000,
+      gas: 1000000,
       chain_id: 43114,
       chainId: 43114,
       // confirmations: 0,    // # of confs to wait between deployments. (default: 0)
@@ -111,7 +110,8 @@ module.exports = {
   },
 
   plugins: [
-    'truffle-plugin-verify'
+    // 'truffle-plugin-verify',
+    'truffle-plugin-blockscout-verify'
   ],
 
   api_keys: {

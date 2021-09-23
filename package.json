@@ -17,6 +17,8 @@
     "web3": "^1.5.1"
   },
   "dependencies": {
-    "truffle": "^5.4.6"
+    "@poanet/solidity-flattener": "^3.0.6",
+    "truffle": "^5.4.6",
+    "truffle-flattener": "^1.5.0"
   }
 }
