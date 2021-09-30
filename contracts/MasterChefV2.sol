@@ -13,7 +13,7 @@ import "./Token.sol";
 // MasterChef is the master of Token. He can make Token and he is a fair guy.
 //
 // Note that it's ownable and the owner wields tremendous power. The ownership
-// will be transferred to a governance smart contract once EBI is sufficiently
+// will be transferred to a governance smart contract once Token is sufficiently
 // distributed and the community can show to govern itself.
 //
 // Have fun reading it. Hopefully it's bug-free. God bless.
@@ -26,7 +26,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 amount;         // How many LP tokens the user has provided.
         uint256 rewardDebt;     // Reward debt. See explanation below.
         //
-        // We do some fancy math here. Basically, any point in time, the amount of EBIs
+        // We do some fancy math here. Basically, any point in time, the amount of Tokens
         // entitled to a user but is pending to be distributed is:
         //
         //   pending reward = (user.amount * pool.accTokenPerShare) - user.rewardDebt
@@ -41,9 +41,9 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     // Info of each pool.
     struct PoolInfo {
         IBEP20 lpToken;           // Address of LP token contract.
-        uint256 allocPoint;       // How many allocation points assigned to this pool. EBIs to distribute per block.
-        uint256 lastRewardBlock;  // Last block number that EBIs distribution occurs.
-        uint256 accTokenPerShare;   // Accumulated EBIs per share, times 1e12. See below.
+        uint256 allocPoint;       // How many allocation points assigned to this pool. Tokens to distribute per block.
+        uint256 lastRewardBlock;  // Last block number that Tokens distribution occurs.
+        uint256 accTokenPerShare;   // Accumulated Tokens per share, times 1e12. See below.
         uint16 withdrawFeeBP;      // Deposit fee in basis points
     }
 
@@ -53,7 +53,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     uint256 public maxEmissionRate = 1 ether;
     // Dev address.
     address public devaddr;
-    // EBI tokens created per block.
+    // Token tokens created per block.
     uint256 public tokenPerBlock;
     // Bonus muliplier for early token makers.
     uint256 public constant BONUS_MULTIPLIER = 1;
@@ -66,7 +66,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
-    // The block number when EBI mining starts.
+    // The block number when Token mining starts.
     uint256 public startBlock;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
@@ -118,7 +118,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         }));
     }
 
-    // Update the given pool's EBI allocation point and deposit fee. Can only be called by the owner.
+    // Update the given pool's Token allocation point and deposit fee. Can only be called by the owner.
     function set(uint256 _pid, uint256 _allocPoint, uint16 _withdrawFeeBP, bool _withUpdate) public onlyOwner {
         require(_withdrawFeeBP <= 300, "add: invalid withdrawal fee basis points");
         if (_withUpdate) {
@@ -134,7 +134,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         return _to.sub(_from).mul(BONUS_MULTIPLIER);
     }
 
-    // View function to see pending EBIs on frontend.
+    // View function to see pending Tokens on frontend.
     function pendingToken(uint256 _pid, address _user) external view returns (uint256) {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
@@ -171,27 +171,33 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 tokenReward = multiplier.mul(tokenPerBlock).mul(pool.allocPoint).div(totalAllocPoint);
         token.mint(devaddr, tokenReward.div(10));
         token.mint(address(this), tokenReward);
+        uint256 burnAmount = tokenReward.mul(2).div(100);
+
+        token.transfer(0x000000000000000000000000000000000000dEaD, burnAmount);
+        tokenReward = tokenReward.sub(burnAmount);
+
         pool.accTokenPerShare = pool.accTokenPerShare.add(tokenReward.mul(1e12).div(lpSupply));
         pool.lastRewardBlock = block.number;
     }
 
-    // Deposit LP tokens to MasterChef for TMG allocation.
+    // Deposit LP tokens to MasterChef for Token allocation.
     function deposit(uint256 _pid, uint256 _amount) public nonReentrant {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
         updatePool(_pid);
-
         if (user.amount > 0) {
-            uint256 pending = user.amount.mul(pool.accTokenPerShare).div(1e18).sub(user.rewardDebt);
+            uint256 pending = user.amount.mul(pool.accTokenPerShare).div(1e12).sub(user.rewardDebt);
             if (pending > 0) {
                 safeTokenTransfer(msg.sender, pending);
             }
+        }
+        if (_amount > 0) {
             uint256 balanceBefore = pool.lpToken.balanceOf(address(this));
             pool.lpToken.safeTransferFrom(address(msg.sender), address(this), _amount);
             uint256 finalAmount = pool.lpToken.balanceOf(address(this)).sub(balanceBefore);
             user.amount = user.amount.add(finalAmount);
         }
-        user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e18);
+        user.rewardDebt = user.amount.mul(pool.accTokenPerShare).div(1e12);
         emit Deposit(msg.sender, _pid, _amount);
     }
 
@@ -210,7 +216,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
             uint256 fee = 0;
             if (pool.withdrawFeeBP > 0) {
                 fee = _amount.mul(pool.withdrawFeeBP).div(10000);
-                pool.lpToken.safeTransfer(address(msg.sender), fee);
+                pool.lpToken.safeTransfer(feeAddress, fee);
             }
             pool.lpToken.safeTransfer(address(msg.sender), _amount.sub(fee));
         }
@@ -229,13 +235,13 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         if (pool.withdrawFeeBP > 0) {
             fee = user.amount.mul(pool.withdrawFeeBP).div(10000);
             amount = amount.sub(fee);
-            pool.lpToken.safeTransfer(address(msg.sender), fee);
+            pool.lpToken.safeTransfer(feeAddress, fee);
         }
         pool.lpToken.safeTransfer(address(msg.sender), amount);
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
-    // Safe token transfer function, just in case if rounding error causes pool to not have enough EBIs.
+    // Safe token transfer function, just in case if rounding error causes pool to not have enough Tokens.
     function safeTokenTransfer(address _to, uint256 _amount) internal {
         uint256 tokenBal = token.balanceOf(address(this));
         bool transferSuccess = false;

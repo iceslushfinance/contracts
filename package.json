@@ -17,7 +17,8 @@
     "web3": "^1.5.1"
   },
   "dependencies": {
-    "@poanet/solidity-flattener": "^3.0.6",
+    "@uniswap/v2-core": "^1.0.1",
+    "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "truffle": "^5.4.6",
     "truffle-flattener": "^1.5.0"
   }
