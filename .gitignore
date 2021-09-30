@@ -1,0 +1,6 @@
+/node_modules/
+/.idea/
+/secrets.json
+/build/
+/test/
+/accounts.json
