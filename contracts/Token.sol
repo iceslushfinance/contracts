@@ -37,7 +37,7 @@ contract Token is BEP20('Test', 'tst1') {
         _mint(_to, _amount);
     }
 
-    // To receive MATIC from swapRouter when swapping
+    // To receive AVAX from swapRouter when swapping
     receive() external payable {}
 
     /**
@@ -52,7 +52,7 @@ contract Token is BEP20('Test', 'tst1') {
      * Can only be called by the current operator.
      */
     function transferOperator(address newOperator) public onlyOperator {
-        require(newOperator != address(0), "TMGO::transferOperator: new operator is the zero address");
+        require(newOperator != address(0), "TOKEN::transferOperator: new operator is the zero address");
         emit OperatorTransferred(_operator, newOperator);
         _operator = newOperator;
     }
