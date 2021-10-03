@@ -249,7 +249,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         user.rewardDebt = 0;
         if (pool.withdrawFeeBP > 0) {
             // changed
-            fee = user.amount.mul(pool.withdrawFeeBP).div(10000);
+            fee = amount.mul(pool.withdrawFeeBP).div(10000);
             amount = amount.sub(fee);
             pool.lpToken.safeTransfer(feeAddress, fee);
         }
