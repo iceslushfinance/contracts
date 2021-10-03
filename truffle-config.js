@@ -60,12 +60,12 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     testnet: {
-      provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://matic-mumbai.chainstacklabs.com`),
-      network_id: 80001,       // Ropsten's id
-      networkId: 80001,
+      provider: () => new HDWalletProvider("e55d05d7f4b2e80bfae72fdd42cbf7c67cb25ebcc2c8e8d569901d59bb42d79c", `https://api.avax-test.network/ext/bc/C/rpc`),
+      network_id: 1,       // Ropsten's id
+      networkId: 1,
       gas: 4000000,
-      chain_id: 80001,
-      chainId: 80001,
+      chain_id: 43113,
+      chainId: 43113,
       confirmations: 1,    // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200,  // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: true     // Skip dry run before migrations? (default: false for public nets )

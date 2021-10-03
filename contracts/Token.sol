@@ -29,6 +29,7 @@ contract Token is BEP20('Test', 'tst1') {
      */
     constructor() {
         _operator = _msgSender();
+        transferOwnership(_msgSender());
         emit OperatorTransferred(address(0), _operator);
     }
 

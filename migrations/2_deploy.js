@@ -7,15 +7,15 @@ module.exports = async function (deployer) {
 
   const devAddr = "0xC8ad39418043AB46737eD0055E0a9c7E85cf6238"
 
-  const startBlock = 19250416;
+  const startTime = parseInt((new Date().getTime() / 1000 - 60 * 60 * 3 * 1000) + "") + 100;
 
   await deployer.deploy(
     MasterChefV2,
     token.address,
     devAddr,
     devAddr,
-    "70000000000000000", // TODO: 0.07
-    startBlock
+    "1000000000000000000",
+    startTime
   );
   const masterChef = await MasterChefV2.deployed();
   // mint for developer
