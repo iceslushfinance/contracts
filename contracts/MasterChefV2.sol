@@ -51,6 +51,8 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     Token public token;
     // Maximum emission rate
     uint256 public maxEmissionRate = 1 ether;
+    // Burn Rate *100
+    uint256 public burnRate = 300;
     // Dev address.
     address public devaddr;
     // Token tokens created per second.
@@ -65,7 +67,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     // Total allocation points. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
     // The timestamp when Token mining starts.
-    uint256 public startTime;
+    uint256 public startTimestamp;
 
     event Deposit(address indexed user, uint256 indexed pid, uint256 amount);
     event Withdraw(address indexed user, uint256 indexed pid, uint256 amount);
@@ -78,13 +80,13 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     event SetStartTime(uint256 startTime);
 
     constructor(
-        Token _token,
         address _devaddr,
         address _feeAddress,
         uint256 _tokenPerSecond,
         uint256 _startTimestamp
     ) {
-        token = _token;
+        require(_feeAddress != address(0), "no zero address");
+        require(_devaddr != address(0), "no zero address");
         devaddr = _devaddr;
         feeAddress = _feeAddress;
         tokenPerSecond = _tokenPerSecond;
@@ -102,14 +104,14 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     }
 
     // Add a new lp to the pool. Can only be called by the owner.
-    function add(uint256 _allocPoint, IBEP20 _lpToken, uint16 _withdrawFeeBP, bool _withUpdate) public onlyOwner nonDuplicated(_lpToken) {
+    function add(uint256 _allocPoint, IBEP20 _lpToken, uint16 _withdrawFeeBP, bool _withUpdate) external onlyOwner nonDuplicated(_lpToken) {
         require(_withdrawFeeBP <= 400, "add: invalid deposit fee basis points");
         if (_withUpdate) {
             massUpdatePools();
         }
         // balanceOf check
         // this should be works fine if address is a token
-        uint256 balance = _lpToken.balanceOf(addrress(this));
+        uint256 balance = _lpToken.balanceOf(address(this));
 
         uint256 lastRewardTime = block.timestamp > startTimestamp ? block.timestamp : startTimestamp;
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
@@ -126,7 +128,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
     }
 
     // Update the given pool's Token allocation point and deposit fee. Can only be called by the owner.
-    function set(uint256 _pid, uint256 _allocPoint, uint16 _withdrawFeeBP, bool _withUpdate) public onlyOwner {
+    function set(uint256 _pid, uint256 _allocPoint, uint16 _withdrawFeeBP, bool _withUpdate) external onlyOwner {
         require(_withdrawFeeBP <= 400, "add: invalid withdrawal fee basis points");
         if (_withUpdate) {
             massUpdatePools();
@@ -148,7 +150,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accTokenPerShare = pool.accTokenPerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
-        // CHANGED
+
         if (lpSupply == 0 || totalAllocPoint == 0) return 0;
 
         if (block.timestamp > pool.lastRewardTime && lpSupply != 0) {
@@ -182,7 +184,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         uint256 tokenReward = multiplier.mul(tokenPerSecond).mul(pool.allocPoint).div(totalAllocPoint);
         token.mint(devaddr, tokenReward.div(10));
         token.mint(address(this), tokenReward);
-        uint256 burnAmount = tokenReward.mul(2).div(100);
+        uint256 burnAmount = tokenReward.mul(burnRate).div(100);
 
         safeTokenTransfer(0x000000000000000000000000000000000000dEaD, burnAmount);
 
@@ -227,8 +229,7 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
             user.amount = user.amount.sub(_amount);
             uint256 fee = 0;
             if (pool.withdrawFeeBP > 0) {
-                // Changed
-                fee = _amount.mul(pool.withdrawFeeBP).div(100);
+                fee = _amount.mul(pool.withdrawFeeBP).div(10000);
                 pool.lpToken.safeTransfer(feeAddress, fee);
             }
             pool.lpToken.safeTransfer(address(msg.sender), _amount.sub(fee));
@@ -246,12 +247,11 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         user.amount = 0;
         user.rewardDebt = 0;
         if (pool.withdrawFeeBP > 0) {
-            // changed
-            fee = user.amount.mul(pool.withdrawFeeBP).div(100);
+            fee = amount.mul(pool.withdrawFeeBP).div(10000);
             amount = amount.sub(fee);
             pool.lpToken.safeTransfer(feeAddress, fee);
         }
-        pool.lpToken.safeTransfer(address(msg.sender), amount);
+        pool.lpToken.safeTransfer(msg.sender, amount);
         emit EmergencyWithdraw(msg.sender, _pid, amount);
     }
 
@@ -296,9 +296,14 @@ contract MasterChefV2 is Ownable, ReentrancyGuard {
         startTimestamp = _startTimestamp;
         uint256 length = poolInfo.length;
         for (uint256 pid = 0; pid < length; ++pid) {
-            poolInfo[pid].lastRewardTime = startTimestamp;
+            poolInfo[pid].lastRewardTime = _startTimestamp;
         }
 
         emit SetStartTime(_startTimestamp);
+    }
+
+    function setTokenAddress(Token _token) external onlyOwner {
+        require(address(token) == address(0), "Token already set");
+        token = _token;
     }
 }
